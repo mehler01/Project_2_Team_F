@@ -57,3 +57,8 @@ Baseline_solution(words, width):
     
     return recursive(0)
 ```
+
+## Optimized Solution
+
+## Time Complexity
+Our baseline solution using the purely recursive approach operates inefficiently compared to our optimized solution. The baseline algorithm operates with a $\mathcal{O}(2^n)$ time complexity. This is because each call tries every line that fits, then recurses on the remaining words, so the same remaining words get recomputed over and over. In the worst case, every word fits on one line, so each word either ends a line or doesn’t, doubling the number of calls for each extra word.
