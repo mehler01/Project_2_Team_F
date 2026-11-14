@@ -59,6 +59,40 @@ Baseline_solution(words, width):
 ```
 
 ## Optimized Solution
+We will use dynamic programming to improve our recursive baseline. We add a table called memo to save answers we have already calculated. Before solving the remaining words, we check whether the answer is saved. If it is, we reuse it instead of repeating the same calculations.
+```
+Optimized_solution(words, width):
+    n = len(words)
+    W = width
+    memo = empty table
 
+    def recursive(i):
+        if i == n:
+            return 0
+
+        if i is in memo:
+            return memo[i]
+
+        best = infinity
+        C = 0
+
+        for j from i to n-1:
+            C += len(words[j]) + 1
+
+            if C - 1 > W:
+                break
+
+            if j == n - 1:
+                cost = 0
+            else:
+                cost = (W - C + 1)^3
+
+            best = min(best, cost + recursive(j + 1))
+
+        memo[i] = best
+        return best
+
+    return recursive(0)
+```
 ## Time Complexity
 Our baseline solution using the purely recursive approach operates inefficiently compared to our optimized solution. The baseline algorithm operates with a $\mathcal{O}(2^n)$ time complexity. This is because each call tries every line that fits, then recurses on the remaining words, so the same remaining words get recomputed over and over. In the worst case, every word fits on one line, so each word either ends a line or doesn’t, doubling the number of calls for each extra word.
