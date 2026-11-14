@@ -95,4 +95,10 @@ Optimized_solution(words, width):
     return recursive(0)
 ```
 ## Time Complexity
-Our baseline solution using the purely recursive approach operates inefficiently compared to our optimized solution. The baseline algorithm operates with a $\mathcal{O}(2^n)$ time complexity. This is because each call tries every line that fits, then recurses on the remaining words, so the same remaining words get recomputed over and over. In the worst case, every word fits on one line, so each word either ends a line or doesn’t, doubling the number of calls for each extra word.
+Our baseline solution using the purely recursive approach operates inefficiently compared to our optimized solution. The baseline algorithm operates with a $\mathcal{O}(2^n)$ time complexity. This is because each call tries every line that fits, then recurses on the remaining words, so the same remaining words get recomputed over and over. In the worst case, every word fits on one line, so each word either ends a line or doesn’t, doubling the number of calls for each extra word. 
+
+The optimized algorithm has a worst-case running time of $\Theta(n^2)$. Each starting position is solved only once, and the maximum number of checks is:
+
+$n+(n-1)+\cdots+1=\frac{n(n+1)}{2}.$
+
+Each check takes constant time, assuming word lengths and arithmetic take constant time. The algorithm uses $O(n)$ extra space for saved answers and recursive calls.
