@@ -1,7 +1,7 @@
 # Planning and Analysis
 
 ## Problem Formulation
-We were tasked with solving a problem for a static site generator that uses a strict, minimalist typography layout. Given a sequence of $n$ words, we are tasked with rendering them into a simple paragraph. Each line on the webpage has a width of $W$ characters. If a line contains words using $C$ characters, then the aesthetic penalty for leftover whitespace is quantized by $(W-C)\cdot 3$, where $C\leq W$. Note, the last line of the paragraph incurs zero penalty. Our goal is to design an algorithm that breaks the words into lines, and minimalizes the total sum of aesthetic penalties across all lines. 
+We were tasked with solving a problem for a static site generator that uses a strict, minimalist typography layout. Given a sequence of $n$ words, we are tasked with rendering them into a simple paragraph. Each line on the webpage has a width of $W$ characters. If a line contains words using $C$ characters, then the aesthetic penalty for leftover whitespace is quantized by $3\cdot(W-C)$, where $C\leq W$. Note, the last line of the paragraph incurs zero penalty. Our goal is to design an algorithm that breaks the words into lines, and minimalizes the total sum of aesthetic penalties across all lines. 
 
 ## Baseline Solution
 To establish a baseline algorithm, we used an iterative approach. This approach iterates through each word, adding them to the current paragraph line until the width limit is met. It accounts for the space after each word, but makes sure to remove the space after the last word when accounting for the penalty. Additionally, once the last word is reached, no penalty is added.
