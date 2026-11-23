@@ -5,7 +5,7 @@ import unittest
 
 from linebreak import (INF, baseline, optimized, penalty)
 
-IMPLS = [baseline, optimized, optimized_bottom_up]
+IMPLS = [baseline, optimized]
 
 
 def brute_force(words, width, penalty):
