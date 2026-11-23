@@ -5,7 +5,7 @@ import random
 import sys
 import time
 
-from linebreak import baseline, optimized
+from Project_2_Team_F.src.linebreak import baseline, optimized
 
 TIME_CAP = 5.0       # stop growing baseline once one run exceeds this many seconds
 REPEATS = 10          # take the best of several runs to reduce noise
@@ -47,17 +47,7 @@ def main():
         if capped and n >= 30:
             pass
 
-    # Experiment 2: optimized alone, large n, fixed W=80 (expect ~linear in n)
-    print("\nExperiment 2: optimized only, W=80 fixed")
-    print(f"{'n':>6} {'memo (s)':>12} {'bottom-up (s)':>14}")
-    for n in (500, 1000, 2000, 4000, 8000):
-        w = make_words(n)
-        m = timeit(optimized, w, 80)
-        u = timeit(optimized_bottom_up, w, 80)
-        print(f"{n:>6} {m:>12.6f} {u:>14.6f}")
-        rows.append(("exp2_W80", n, 80, "", m))
-
-    # Experiment 3: worst case for Theta(n^2): W huge so every word fits on one line
+    # Experiment 2: worst case for Theta(n^2): W huge so every word fits on one line
     print("\nExperiment 3: optimized only, W=10^9 (worst case, inner loop runs to n)")
     print(f"{'n':>6} {'memo (s)':>12} {'time / n^2 (ns)':>16}")
     for n in (250, 500, 1000, 2000, 4000):
