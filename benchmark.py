@@ -5,10 +5,10 @@ import random
 import sys
 import time
 
-from linebreak import baseline, optimized, optimized_bottom_up
+from linebreak import baseline, optimized
 
 TIME_CAP = 5.0       # stop growing baseline once one run exceeds this many seconds
-REPEATS = 3          # take the best of several runs to reduce noise
+REPEATS = 10          # take the best of several runs to reduce noise
 
 
 def make_words(n, seed=1, lo=2, hi=8):
