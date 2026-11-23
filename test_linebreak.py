@@ -3,8 +3,7 @@ import itertools
 import random
 import unittest
 
-from linebreak import (INF, baseline, optimized, optimized_bottom_up,
-                       optimized_with_layout, linear_penalty, cubic_penalty)
+from linebreak import (INF, baseline, optimized, penalty)
 
 IMPLS = [baseline, optimized, optimized_bottom_up]
 
