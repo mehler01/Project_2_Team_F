@@ -51,7 +51,9 @@ Baseline_solution(words, width):
 
             best = min(best, cost + recursive(j+1))
 
-            # after a line is completed, the recursive algorithm # is called to produce the minimal penalty with the # remaining words
+            # after a line is completed, the recursive algorithm
+            # is called to produce the minimal penalty with the
+            # remaining words
 
         return best
     
