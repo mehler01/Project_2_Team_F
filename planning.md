@@ -85,7 +85,7 @@ Optimized_solution(words, width):
             if j == n - 1:
                 cost = 0
             else:
-                cost = (W - C + 1)^3
+                cost = (W - C + 1) * 3
 
             best = min(best, cost + recursive(j + 1))
 
