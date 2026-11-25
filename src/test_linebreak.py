@@ -3,9 +3,10 @@ import itertools
 import random
 import unittest
 
-from Project_2_Team_F.src.linebreak import (INF, baseline, optimized, penalty)
+from linebreak import (INF, baseline, optimized, optimized_bottom_up,
+                       optimized_with_layout, linear_penalty, cubic_penalty)
 
-IMPLS = [baseline, optimized]
+IMPLS = [baseline, optimized, optimized_bottom_up]
 
 
 def brute_force(words, width, penalty):
