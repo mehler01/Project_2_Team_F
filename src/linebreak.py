@@ -1,10 +1,5 @@
 """Line-breaking: split a sequence of words into lines of width W so the total
 whitespace penalty is minimal. The last line costs nothing.
-
-A line holding words with total length L and k words has width L + (k - 1)
-(single spaces between words). Its slack is W - width, and its penalty is
-penalty(slack). Every function returns the minimum total penalty, or
-math.inf when some word is longer than W (no valid layout exists).
 """
 import math
 import sys
@@ -12,11 +7,9 @@ import sys
 INF = math.inf
 
 
-
 def baseline(words, width, penalty=None):
     """Plain recursion: try every line that fits, recurse on the rest.
     Time O(2^n) worst case (subproblems recomputed), O(n) stack space."""
-    penalty = penalty or DEFAULT_PENALTY
     n = len(words)
 
     def recursive(i):
@@ -39,7 +32,6 @@ def optimized(words, width, penalty=None):
     """Top-down DP: same recursion as baseline plus a memo table keyed by the
     starting word index. Each index is solved once: O(n * k) time where k is the
     max words per line (k <= n, so O(n^2) worst case), O(n) space."""
-    penalty = penalty or DEFAULT_PENALTY
     n = len(words)
     memo = {}
     old_limit = sys.getrecursionlimit()

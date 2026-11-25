@@ -4,9 +4,7 @@
 We were tasked with solving a problem for a static site generator that uses a strict, minimalist typography layout. Given a sequence of $n$ words, we are tasked with rendering them into a simple paragraph. Each line on the webpage has a width of $W$ characters. If a line contains words using $C$ characters, then the aesthetic penalty for leftover whitespace is quantized by $(W-C)\cdot 3$, where $C\leq W$. Note, the last line of the paragraph incurs zero penalty. Our goal is to design an algorithm that breaks the words into lines, and minimalizes the total sum of aesthetic penalties across all lines. 
 
 ## Baseline Solution
-To establish a baseline algorithm, we used an iterative approach. This approach iterates through each word, adding them to the current paragraph line until the width limit is met. It accounts for the space after each word, but makes sure to remove the space after the last word when accounting for the penalty. Additionally, once the last word is reached, no penalty is added.
-
-In terms of the recursive approach, the algorithm constructs a line of words until the width limit is met, it then calculate the penalty cost of the given line, and calls the recursive algorithm. The recursive algorithm then goes through the same process for all the remaining words, and tries all possible line options until the minimal penalty is reached.
+To establish a baseline algorithm, we used an recursive approach. This approach initially calculates what the cost of starting a line with a particular word is. It then recursively calculates the costs of starting lines with all of the remaining words in the branch. Once the entire recursion tree has been solved up to a particular level, the for loop then loops to the next word and calculates the cost of adding the word to this line (if it is possible). It then goes through the entire recursive process again, recording the cost at each level. The cost is minimzed to find the optimal solution. Additionally, if adding a word to a particular line exceeds the width, the algorithm breaks, and the algorithm returns to its parent to continue.
 ```
 Baseline_solution(words, width):
 

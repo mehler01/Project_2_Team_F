@@ -3,11 +3,10 @@
 ## Files
 | File | Purpose |
 |---|---|
-| `linebreak.py` | `baseline` (plain recursion), `optimized` (memoized recursion), `optimized_bottom_up` (iterative DP), `optimized_with_layout` (DP that rebuilds the lines) |
+| `linebreak.py` | `baseline` (plain recursion), `optimized` (memoized recursion) |
 | `test_linebreak.py` | 18 unit tests (`python -m unittest -v test_linebreak`) |
 | `benchmark.py` | Timing experiments; writes `benchmark_results.csv` (`python benchmark.py`) |
 
-Requires Python 3.8+ and the standard library only.
 
 ## Implementation
 The code follows the planning pseudocode directly. A line holding words `i..j` has width `sum(len) + (j - i)`. Its slack is `W - width`, and the last line costs 0. `baseline` tries every line that fits and recurses on the rest. `optimized` is identical plus a `memo` dictionary keyed by the starting word index, so each suffix is solved once.
@@ -15,8 +14,6 @@ The code follows the planning pseudocode directly. A line holding words `i..j` h
 Two additions beyond the pseudocode:
 - **Infeasible input:** if a word is longer than `W`, no line can hold it, and all versions return `inf`.
 - **Bottom-up version and layout reconstruction:** the iterative DP avoids Python's recursion limit and is an independent cross-check. `optimized_with_layout` returns the actual lines, so results can be checked by eye.
-
-**Penalty function.** The planning document is inconsistent: the problem statement and baseline use `(W - C) * 3`, while the optimized pseudocode uses `(W - C)^3`. All implementations take a `penalty` function so they always agree. The default is the linear `slack * 3` from the problem statement, and the tests check both `slack * 3` and `slack ** 3`. Switching the default is a one-line change (`DEFAULT_PENALTY`). The algorithms and complexity are identical either way.
 
 ## Testing
 All 18 tests pass. They cover:
@@ -40,18 +37,7 @@ Each time is the best of 3 runs, measured with `time.perf_counter`. Words are ra
 
 Each +5 words multiplies baseline time by about 30x (0.0063 to 0.197 to 6.11), i.e. about 2x per added word. That is consistent with the predicted exponential growth. The memoized version is still under 0.1 ms at n = 60.
 
-### Experiment 2: optimized only, fixed W = 80
-| n | Memoized (s) | Bottom-up (s) |
-|---:|---:|---:|
-| 500 | 0.001892 | 0.001234 |
-| 1,000 | 0.003821 | 0.002481 |
-| 2,000 | 0.007829 | 0.005009 |
-| 4,000 | 0.016069 | 0.010208 |
-| 8,000 | 0.032546 | 0.020360 |
-
-Doubling `n` doubles the time, so the growth is linear. With a fixed `W`, the inner loop stops after at most about `W/2` words, so the real cost is O(n * min(n, W)). The bottom-up version is about 1.6x faster because it avoids recursion overhead.
-
-### Experiment 3: worst case, W = 10^9 (every word fits on one line)
+### Experiment 2: worst case, W = 10^9 (every word fits on one line)
 | n | Memoized (s) | Time / n^2 (ns) |
 |---:|---:|---:|
 | 250 | 0.008975 | 143.6 |
