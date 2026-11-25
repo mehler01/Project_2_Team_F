@@ -3,17 +3,20 @@
 ## Files
 | File | Purpose |
 |---|---|
-| `linebreak.py` | `baseline` (plain recursion), `optimized` (memoized recursion) |
+| `linebreak.py` | `baseline` (plain recursion), `optimized` (memoized recursion), `optimized_bottom_up` (iterative DP), `optimized_with_layout` (DP that rebuilds the lines) |
 | `test_linebreak.py` | 18 unit tests (`python -m unittest -v test_linebreak`) |
 | `benchmark.py` | Timing experiments; writes `benchmark_results.csv` (`python benchmark.py`) |
 
+Requires Python 3.8+ and the standard library only.
 
 ## Implementation
 The code follows the planning pseudocode directly. A line holding words `i..j` has width `sum(len) + (j - i)`. Its slack is `W - width`, and the last line costs 0. `baseline` tries every line that fits and recurses on the rest. `optimized` is identical plus a `memo` dictionary keyed by the starting word index, so each suffix is solved once.
 
 Two additions beyond the pseudocode:
 - **Infeasible input:** if a word is longer than `W`, no line can hold it, and all versions return `inf`.
+- **Bottom-up version and layout reconstruction:** the iterative DP avoids Python's recursion limit and is an independent cross-check. `optimized_with_layout` returns the actual lines, so results can be checked by eye.
 
+**Penalty function.** The planning document is inconsistent: the problem statement and baseline use `(W - C) * 3`, while the optimized pseudocode uses `(W - C)^3`. All implementations take a `penalty` function so they always agree. The default is the linear `slack * 3` from the problem statement, and the tests check both `slack * 3` and `slack ** 3`. Switching the default is a one-line change (`DEFAULT_PENALTY`). The algorithms and complexity are identical either way.
 
 ## Testing
 All 18 tests pass. They cover:
@@ -60,8 +63,8 @@ Doubling `n` doubles the time, so the growth is linear. With a fixed `W`, the in
 Doubling `n` quadruples the time, and time / n^2 is roughly constant (about 155 ns). This confirms the Theta(n^2) worst case.
 
 ## Conclusions
-- **Correctness:** the baseline and optimized agree with each other and with a brute-force oracle on all randomized tests.
+- **Correctness:** the baseline, memoized DP, and bottom-up DP agree with each other and with a brute-force oracle on all randomized tests.
 - **Baseline is exponential:** it becomes unusable at about 25 words (6 s) and would take much longer for a real paragraph.
 - **Memoization fixes this:** it removes repeated subproblems and gives a speedup of over 100,000x at n = 25.
-- **Theta(n^2) is the worst case, not the typical one:** the planning bound is only reached when `W` is large enough for all words to share a line. 
-
+- **Theta(n^2) is the worst case, not the typical one:** the planning bound is only reached when `W` is large enough for all words to share a line. For realistic widths the cost is O(n * W) and effectively linear in `n`.
+- **Limitations:** timings are from one machine in pure Python, and the baseline was capped at 5 s per run. Inputs with `W = 80` and the random word-length distribution are one workload, not all.
