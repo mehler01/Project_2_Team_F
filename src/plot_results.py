@@ -25,6 +25,7 @@ ax.grid(True, which="both", alpha=0.3)
 # Experiment 2: worst case, W huge -> quadratic; dashed line is c * n^2 fit at the largest n
 e3 = df[df["experiment"] == "exp3_Whuge"]
 ax = axes[1]
+ax.set_xscale("log")
 ax.set_yscale("log")
 ax.plot(e3["n"], e3["optimized_s"], "s-", color="tab:green", label="Measured")
 c = e3["optimized_s"].iloc[-1] / e3["n"].iloc[-1] ** 2

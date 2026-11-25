@@ -1,63 +1,30 @@
-# Implementation and Evaluation
+# Empirical Evaluation
 
-## Files
-| File | Purpose |
-|---|---|
-| `linebreak.py` | `baseline` (plain recursion), `optimized` (memoized recursion) |
-| `test_linebreak.py` | 21 unit tests (`python -m unittest -v test_linebreak`) |
-| `benchmark.py` | Timing experiments; writes `benchmark_results.csv` to `assets/` (`python benchmark.py`) |
-| `plot_results.py` | Reads the CSV and writes `benchmark_plot.png` to `assets/` |
+## Overview
 
+We implemented our two algorithms (`src/linebreak.py`) that solve the Line Breaking problem:
 
-## Implementation
-The code follows the planning pseudocode directly. A line holding words `i..j` has width `sum(len) + (j - i)`. Its slack is `W - width`, its penalty is `3 * slack`, and the last line costs 0. `baseline` tries every line that fits and recurses on the rest. `optimized` is identical plus a `memo` dictionary keyed by the starting word index, so each suffix is solved once.
+1. **Baseline Algorithm:** A plain recursive approach that, for each starting word, tries every line that fits within the width and recurses on the remaining words.
+2. **Optimized Algorithm:** The same recursion as the Baseline Algorithm, plus a memo table keyed by the starting word index, so each suffix of the word list is solved only once.
 
-Two additions beyond the pseudocode:
-- **Infeasible input:** if a word is longer than `W`, no line can hold it, and both versions return `inf`.
-- **Recursion limit:** `optimized` recurses up to `n` levels deep, so it temporarily raises Python's recursion limit to at least `n + 1000` and restores it afterwards, even when the input is infeasible.
+Both algorithms return the minimum total penalty, where each non-last line costs 3 times its slack (the width minus the line's length) and the last line is free, or `inf` when some word is longer than the width. The plot legends label the algorithms as Baseline (recursive) and Optimized (memoized).
 
-## Testing
-All 21 tests pass. They cover:
-- **Hand-computed cases (9):** empty input, single word, everything on one line, exact-fit lines, forced breaks, uneven forced breaks, a word exactly `W` long, the penalty being 3 × slack, and a case with two equally good layouts (cost 15) that is also checked against the brute-force oracle.
-- **Edge cases (7):** a word longer than `W` (alone, at the end, and mid-sequence), empty input with `W = 0`, a free last line, non-negative penalties, and inputs not being mutated.
-- **Optimized-specific (3):** a 3000-word input that exercises deep recursion, with a hand-computed answer of 1122 (374 penalized lines × 3), plus checks that the recursion limit is restored after both a normal and an infeasible call.
-- **Randomized agreement (2):** 400 random inputs (up to 11 words, widths 4 to 25) compared against an independent brute-force oracle that enumerates every subset of break points, and 100 random medium inputs (12 to 16 words) where `baseline` and `optimized` are compared directly. All match.
+Unit testing (`src/test_linebreak.py`) confirms that both algorithms return the correct minimum penalty across 21 typical and edge cases (empty lists, words longer than the width, etc.). Both algorithms also match an independent brute-force oracle on hundreds of random inputs.
 
-## Benchmarking
-Each time is the best of 10 runs, measured with `time.perf_counter`. Words are random lengths 2 to 8 with a fixed seed. The machine and Python version were not recorded, so absolute times will differ on yours; the trends are what matter.
+## Benchmarking Results
 
-### Experiment 1: baseline vs optimized (W = 40, about 8 words per line)
-| n | Baseline (s) | Optimized (s) | Speedup |
-|---:|---:|---:|---:|
-| 5 | 0.0000056 | 0.0000054 | 1.0x |
-| 10 | 0.000171 | 0.0000085 | 20x |
-| 15 | 0.005616 | 0.0000150 | 374x |
-| 20 | 0.170448 | 0.0000211 | 8,078x |
-| 25 | 5.386800 | 0.0000427 | ~126,000x |
-| 30 | skipped (5 s cap exceeded at n = 25) | 0.0000347 | n/a |
-| 35 | skipped | 0.0000555 | n/a |
-| 40 | skipped | 0.0000462 | n/a |
-| 45 | skipped | 0.0000533 | n/a |
-| 50 | skipped | 0.0000592 | n/a |
+We compare the performance of our two algorithms on randomly generated inputs (`src/benchmark.py`) in two experiments: the first runs both algorithms on small inputs (n = 5 to 50 words) with a line width of 40, and the second runs only the Optimized Algorithm on much larger inputs (n = 250 to 16,000 words) with a width of 10^9. Word lengths are sampled from 2 to 8 characters with a fixed random seed. Each input size was run ten times, and the fastest time was used for the plots and subsequent analysis. We present the results in the plots below.
 
-Each +5 words multiplies baseline time by about 31x (0.000171 to 0.0056 to 0.170 to 5.39, ratios of 33x, 30x, and 32x), i.e. about 2x per added word. That is consistent with the predicted exponential growth. The memoized version stays under 0.06 ms all the way to n = 50.
+In the first experiment (left plot), a width of 40 fits roughly 7 words per line, and the y axis is logarithmic because the two algorithms differ by orders of magnitude. The Baseline Algorithm takes about 0.0002 seconds at n = 10, 0.006 seconds at n = 15, 0.17 seconds at n = 20, and 5.39 seconds at n = 25. Since that exceeded our 5 second cap, we did not run it beyond n = 25. The Optimized Algorithm, in contrast, stays under 0.06 milliseconds all the way to n = 50. Each additional 5 words multiplies the Baseline Algorithm's time by about 31 (ratios of 33, 30, and 32), which is roughly a doubling for every added word and appears as a straight line on the logarithmic axis.
 
-### Experiment 2: worst case, W = 10^9 (every word fits on one line)
-| n | Memoized (s) | Time / n^2 (ns) |
-|---:|---:|---:|
-| 250 | 0.007540 | 120.6 |
-| 500 | 0.033306 | 133.2 |
-| 1,000 | 0.137328 | 137.3 |
-| 2,000 | 0.561917 | 140.5 |
-| 4,000 | 2.278476 | 142.4 |
-| 8,000 | 9.175963 | 143.4 |
-| 16,000 | 36.732621 | 143.5 |
+In the second experiment (right plot), we set the width to 10^9, far larger than the total length of any input we generate, so that every word fits on a single line. This is the worst case for the Optimized Algorithm. We predicted the $\mathcal{O}(n^2)$ bound by counting the work: there are $n$ subproblems (one for each starting word), and when every word fits, the loop in each subproblem never stops early at the width limit, so a subproblem starting at word $i$ examines all of the remaining $n - i$ words. Summing over all starting words gives about $n^2 / 2$ steps. With a normal width, the loop would stop after a handful of words, so the 10^9 width is what allows us to reach this bound instead of measuring a faster case. Both axes of this plot are logarithmic, so a running time of the form $n^c$ appears as a straight line of slope $c$. The measured line approaches a slope of 2 at larger inputs: the slope between consecutive input sizes falls from 2.14 (n = 250 to 500) to 2.00 (n = 8,000 to 16,000), and is 2.04 over the whole range. It also runs parallel to the dashed c · n² reference line, where c is fitted to the measurement at the largest input. The Optimized Algorithm takes 0.0075 seconds at n = 250, 0.14 seconds at n = 1,000, 2.28 seconds at n = 4,000, and 36.7 seconds at n = 16,000.
 
-Doubling `n` roughly quadruples the time (the ratio falls from 4.4x at the smallest sizes to 4.00x at the largest), and time / n^2 levels off at about 143 ns. This confirms the Theta(n^2) worst case. The slightly lower values at small `n` are fixed overhead that is amortized away as `n` grows.
+![Benchmark Plot](assets/benchmark_plot.png)
 
-## Conclusions
-- **Correctness:** `baseline` and `optimized` agree with each other and with a brute-force oracle on all randomized tests.
-- **Baseline is exponential:** it becomes unusable at about 25 words (5.4 s) and would take far longer for a real paragraph.
-- **Memoization fixes this:** it removes repeated subproblems and gives a speedup of roughly 126,000x at n = 25.
-- **Theta(n^2) is the worst case, not the typical one:** the planning bound is only reached when `W` is large enough for all words to share a line. For realistic widths the cost is O(n * W) and effectively linear in `n`.
-- **Limitations:** timings are from one machine in pure Python, and the baseline was capped at 5 s per run. A single `W = 40` workload with random word lengths 2 to 8 is one workload, not all.
+The empirical data aligns with our theoretical complexity analysis (`planning.md`):
+
+- **Baseline Exponential Scaling**: The Baseline Algorithm has a worst-case upper bound of $\mathcal{O}(2^n)$ because it recomputes the same suffixes many times: with short words and a wide line, every gap between words can independently be a line break or not. The measured growth of about 2 times per added word matches this, and the algorithm becomes unusable at around 25 words, where it already takes 5.39 seconds. Its stack space is only $\mathcal{O}(n)$, since the recursion depth is at most one level per word.
+- **Optimized Efficiency**: The Optimized Algorithm solves each of the $n$ suffixes of the word list only once, which removes the repeated work of the Baseline Algorithm and leaves $\mathcal{O}(n^2)$ time in the worst case and $\mathcal{O}(n)$ space. At n = 25, it is about **126,000 times faster** than the Baseline Algorithm (0.0000427 seconds versus 5.39 seconds), demonstrating the advantage of memoizing overlapping subproblems instead of recomputing them.
+- **Quadratic Worst Case**: The $\mathcal{O}(n^2)$ bound is reached when the width is large enough for all words to share one line, which is why the second experiment uses a width of 10^9. The log-log plot confirms it: the measured slope approaches 2 as the input grows, meaning the running time approaches $n^2$ at large word counts.
+
+All timings come from a single machine in pure Python, and the machine and Python version were not recorded, so absolute times will differ on other machines; the growth trends are what matter. The two experiments each use one workload (width 40 for the comparison, width 10^9 for the worst case) with random word lengths, so they do not cover every possible input.
