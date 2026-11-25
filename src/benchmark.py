@@ -4,8 +4,11 @@ import csv
 import random
 import sys
 import time
+from pathlib import Path
 
 from linebreak import baseline, optimized
+
+OUT_DIR = Path("C:/Users/jnmeh/CMPSC_202/Project_2_Team_F/assets")
 
 TIME_CAP = 5.0       # stop growing baseline once one run exceeds this many seconds
 REPEATS = 10          # take the best of several runs to reduce noise
@@ -56,10 +59,13 @@ def main():
         print(f"{n:>6} {m:>12.6f} {m / n ** 2 * 1e9:>16.2f}")
         rows.append(("exp3_Whuge", n, 10 ** 9, "", m))
 
-    with open("benchmark_results.csv", "w", newline="") as f:
+    OUT_DIR.mkdir(parents=True, exist_ok=True)   # create the folder if missing
+    csv_path = OUT_DIR / "benchmark_results.csv"
+    with open(csv_path, "w", newline="") as f:
         wr = csv.writer(f)
         wr.writerow(["experiment", "n", "W", "baseline_s", "optimized_s"])
         wr.writerows(rows)
+    print(f"Saved {csv_path}")
 
 
 if __name__ == "__main__":

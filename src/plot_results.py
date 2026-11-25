@@ -1,8 +1,12 @@
 """Use pandas to plot benchmark_results.csv"""
 import pandas as pd
 import matplotlib.pyplot as plt
- 
-df = pd.read_csv("benchmark_results.csv")   # columns: experiment, n, W, baseline_s, optimized_s
+from pathlib import Path
+
+OUT_DIR = Path("C:/Users/jnmeh/CMPSC_202/Project_2_Team_F/assets")
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+df = pd.read_csv(OUT_DIR / "benchmark_results.csv")
  
 fig, axes = plt.subplots(1, 2, figsize=(16, 4.8))
  
@@ -25,13 +29,14 @@ ax.set_yscale("log")
 ax.plot(e3["n"], e3["optimized_s"], "s-", color="tab:green", label="Measured")
 c = e3["optimized_s"].iloc[-1] / e3["n"].iloc[-1] ** 2
 ax.plot(e3["n"], c * e3["n"] ** 2, "k--", alpha=0.6, label="c · n² reference")
-ax.set_title("Optimized worst case, W = 10⁹ (quadratic)")
+ax.set_title("Optimized worst case, W = 10⁹")
 ax.set_xlabel("Number of words (n)")
 ax.set_ylabel("Time (s, log scale)")
 ax.legend()
 ax.grid(True, alpha=0.3)
- 
+
 fig.tight_layout()
-fig.savefig("benchmark_plot.png", dpi=150)
-print("Saved benchmark_plot.png")
+plot_path = OUT_DIR / "benchmark_plot.png"
+fig.savefig(plot_path, dpi=150)
+print(f"Saved {plot_path}")
 plt.show()
